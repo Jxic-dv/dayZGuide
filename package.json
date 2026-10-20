@@ -1,0 +1,11 @@
+{
+  "name": "dayz-guia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Guía de supervivencia de DayZ: armas, objetos, lugares, zonas militares y crafteos",
+  "scripts": {
+    "start": "node server.js",
+    "images": "node scripts/download-images.js"
+  },
+  "engines": { "node": ">=18" }
+}

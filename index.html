@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DayZ · Guía de supervivencia</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header><div class="logo">DAYZ<span>/</span>GUÍA</div><nav id="nav"></nav></header>
+<main>
+<section id="armas"><h1>Armas</h1><p class="lead">Armas de Chernarus con su munición, daño relativo y dónde suelen aparecer. El daño va de 1 a 5 y sirve para comparar, no son valores exactos.</p>
+<div class="f" id="filtros"></div>
+<div class="w"><table><thead><tr><th>Imagen</th><th>Nombre</th><th>Munición</th><th>Daño</th><th>Dónde encontrarla</th><th>Notas</th></tr></thead><tbody id="tw"></tbody></table></div></section>
+<section id="objetos"><h1>Objetos importantes</h1><p class="lead">Qué buscar según tu etapa de la partida y dónde conseguirlo.</p><div id="ob"></div></section>
+<section id="lugares"><h1>Lugares de interés</h1><p class="lead">Pueblos con buen loot civil, médico y policial en los que no necesitas máscara de gas ni traje de protección.</p><div class="g" id="lg"></div></section>
+<section id="militar"><h1>Zonas militares</h1><p class="lead">Divididas por tier según el riesgo y la calidad del loot. La clasificación es orientativa y la comunidad la maneja con matices.</p><div class="g" id="mi"></div></section>
+<section id="crafteos"><h1>Crafteos útiles</h1><p class="lead">Las recetas que más te sacan de apuros. Revisa todas las acciones disponibles antes de mantener el botón de craftear.</p><div class="g" id="cr"></div></section>
+<section id="consejos"><h1>Consejos</h1><ul id="co"></ul></section>
+<footer>Datos de DayZ vanilla (mapa Chernarus). Los servidores con mods o loot distinto pueden variar. Imágenes de dayz.wiki.gg y bamboogaming.net; DayZ es marca de Bohemia Interactive.</footer>
+</main>
+<script>
+const WK="https://dayz.wiki.gg/images/thumb/",BB="https://www.bamboogaming.net/images/dayz/";
+const S={pistola:"M6 14h58v8H34l-4 16H18l3-16H6z",revolver:"M6 14h56v8H36l-5 18H19l4-18H6z",escopeta:"M2 20h56l10-6h24v8H70l-8 10H44l-6-4H2z",rifle:"M2 22h64l8-6h18v8H76l-8 12H56l-4-4H2z",fusil:"M2 20h40v-6h14v6h22l6-6h8v8h-8v10H60l-3-5H46v12H34V28H2z",smg:"M6 16h60v8H40v16H28V24H6z"};
+const ic=c=>`<svg viewBox="0 0 100 48" fill="currentColor" aria-hidden="true"><path d="${S[c]}"/></svg>`;
+const L={todas:"Todas",pistola:"Pistolas",revolver:"Revólveres",escopeta:"Escopetas",rifle:"Rifles",fusil:"Fusiles",smg:"Subfusiles"};
+const $=id=>document.getElementById(id);
+function im(urls,alt,fb){return `<img alt="${alt}" loading="lazy" data-u="${urls.join("|")}" data-i="0" data-fb="${fb.replace(/"/g,"&quot;")}" src="${urls[0]}">`}
+const wUrls=f=>[].concat(f).flatMap(n=>[`/img/${n}.png`,`/img/${n}.webp`,`${WK}${n}.png/300px-${n}.png`,`${BB}${n}.webp`]);
+const iUrls=f=>[`/img/${f}`,BB+f];
+document.addEventListener("error",e=>{const t=e.target;if(t.tagName!="IMG"||!t.dataset.u)return;const u=t.dataset.u.split("|"),i=+t.dataset.i+1;
+if(i<u.length){t.dataset.i=i;t.src=u[i]}else{const s=document.createElement("span");s.className="fb";s.innerHTML=t.dataset.fb;t.replaceWith(s)}},true);
+const emo=e=>`<span class="fb">${e}</span>`;
+fetch("data.json").then(r=>r.json()).then(D=>{
+ function wp(f){$("tw").innerHTML=D.weapons.filter(w=>f=="todas"||w.t==f).map(w=>`<tr><td><div class="pic">${im(wUrls(w.f),w.n,ic(w.t))}</div></td><td class="n">${w.n}</td><td>${w.a}</td><td class="dm" title="${w.d} de 5">${"●".repeat(w.d)+"○".repeat(5-w.d)}</td><td>${w.w}</td><td class="mut">${w.x}</td></tr>`).join("");
+  $("filtros").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t==f))}
+ $("filtros").innerHTML=Object.keys(L).map(t=>`<button data-t="${t}">${L[t]}</button>`).join("");
+ $("filtros").onclick=e=>e.target.dataset.t&&wp(e.target.dataset.t);wp("todas");
+ const P={early:["Inicio","Sobrevivir y moverte"],mid:["Intermedio","Protección y base"],late:["Avanzado","Ventaja sobre otros jugadores"]};
+ $("ob").innerHTML=Object.keys(P).map(k=>`<h2>${P[k][0]} <span class="mut">· ${P[k][1]}</span></h2><div class="g">${D.items.filter(i=>i.p==k).map(i=>`<div class="c t-${k}"><div class="ph">${i.i?im(iUrls(i.i),i.n,i.e):emo(i.e)}</div><div><h3>${i.n}</h3><p>${i.u}</p><p class="mut">Dónde: ${i.w}</p></div></div>`).join("")}</div>`).join("");
+ $("lg").innerHTML=D.places.map(p=>`<div class="c"><div class="ph">${emo(p.e)}</div><div><h3>${p.n}</h3><p>${p.l}</p><p class="mut">${p.x}</p><p><span class="risk">Riesgo ${p.r}</span></p></div></div>`).join("");
+ $("mi").innerHTML=D.mil.map(m=>`<div class="c t-${m.c}"><div class="ph">${emo(m.e)}</div><div><h3>${m.n}</h3><p><b>${m.z}</b></p><p>${m.l}</p><p class="mut">Qué llevar: ${m.q}</p></div></div>`).join("");
+ $("cr").innerHTML=D.craft.map(c=>`<div class="c" style="display:block"><div class="rc">${c.i.map(f=>`<div class="ph">${im(iUrls(f),c.t,emo("🛠️"))}</div>`).join("")}</div><h3>${c.t}</h3><p>${c.r}</p><p class="mut">${c.d}</p></div>`).join("");
+ $("co").innerHTML=D.tips.map(t=>`<li>${t}</li>`).join("");
+});
+const secs=["armas","objetos","lugares","militar","crafteos","consejos"],NL={armas:"Armas",objetos:"Objetos importantes",lugares:"Lugares de interés",militar:"Militar",crafteos:"Crafteos",consejos:"Consejos"};
+$("nav").innerHTML=secs.map(s=>`<button data-s="${s}">${NL[s]}</button>`).join("");
+function go(s){if(!secs.includes(s))s="armas";secs.forEach(x=>$(x).classList.toggle("on",x==s));$("nav").querySelectorAll("button").forEach(b=>b.setAttribute("aria-current",b.dataset.s==s));history.replaceState(null,"","#"+s);scrollTo(0,0)}
+$("nav").onclick=e=>e.target.dataset.s&&go(e.target.dataset.s);go(location.hash.slice(1));
+</script>
+</body>
+</html>
